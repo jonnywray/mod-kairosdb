@@ -1,0 +1,9 @@
+{
+  "main":"com.jonnywray.vertx.KairosPersistor",
+
+  "description":"KairosDB persistor module for Vert.x",
+  "licenses": ["The Apache Software License Version 2.0"],
+  "author": "Jonny Wray",
+  "keywords": ["kairosdb", "database", "databases", "persistence", "json", "nosql"],
+  "homepage": "https://bitbucket.org/jwray/mod-kairosdb"
+}
