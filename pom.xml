@@ -10,7 +10,7 @@
   <name>Vertx Persistence Module for KairosDB</name>
   <url>https://bitbucket.org/jwray/mod-kairosdb</url>
   <description>
-      A vertx persistenc module for the KairosDB time series database
+      A vertx persistence module for the KairosDB time series database
   </description>
   <developers>
       <developer>
