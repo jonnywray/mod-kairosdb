@@ -7,15 +7,26 @@
   <artifactId>mod-kairosdb</artifactId>
   <packaging>jar</packaging>
   <version>1.0-SNAPSHOT</version>
-  <name>Project - mod-kairosdb</name>
-  <url>http://maven.apache.org</url>
-
-  <parent>
-     <groupId>org.sonatype.oss</groupId>
-     <artifactId>oss-parent</artifactId>
-     <version>7</version>
-  </parent>
-
+  <name>Vertx Persistence Module for KairosDB</name>
+  <url>https://bitbucket.org/jwray/mod-kairosdb</url>
+  <description>
+      A vertx persistenc module for the KairosDB time series database
+  </description>
+  <developers>
+      <developer>
+          <id>jwray</id>
+          <name>Jonny Wray</name>
+          <url>http://www.jonnywray.come</url>
+      </developer>
+  </developers>
+  <inceptionYear>2013</inceptionYear>
+  <licenses>
+      <license>
+          <name>The Apache Software License, Version 2.0</name>
+          <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+          <distribution>repo</distribution>
+      </license>
+  </licenses>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
