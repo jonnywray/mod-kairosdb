@@ -21,13 +21,20 @@ package com.jonnywray.vertx;
 import org.vertx.java.core.json.JsonObject;
 
 /**
- * Helper class responsible for validating JSON objects that are to be passed as commands to the KairosDB REST interface
+ * Helper class responsible for validating JSON objects that are to be passed as commands to the
+ * <a href="https://code.google.com/p/kairosdb/wiki/Overview">KairosDB REST interface</a>
  *
  * @author Jonny Wray
  */
 public class JsonValidator {
 
-
+    /**
+     * Validate the JSON object to be used as an <a href="https://code.google.com/p/kairosdb/wiki/AddDataPoints">add data points</a>
+     * data object
+     *
+     * @param dataPoints the JSON to be validated
+     * @return whether valid or not
+     */
     public boolean validateDataPoints(JsonObject dataPoints){
         if(dataPoints == null){
             return false;
