@@ -71,11 +71,11 @@ public class KairosPersistor extends BusModBase implements Handler<Message<JsonO
             return;
         }
         switch (action){
-            case "version" :
-                version(message);
-                break;
             case "add_data_points" :
                 addDataPoints(message);
+                break;
+            case "delete_metric":
+                deleteMetric(message);
                 break;
             case "list_metric_names":
                 listMetricNames(message);
@@ -86,29 +86,59 @@ public class KairosPersistor extends BusModBase implements Handler<Message<JsonO
             case "list_tag_values":
                 listTagValues(message);
                 break;
+            case "version" :
+                version(message);
+                break;
             default:
                 sendError(message, "unsupported action specified: "+action);
         }
+    }
+
+    private void deleteMetric(final Message<JsonObject> message) {
+        String metricName = message.body().getString("metric_name");
+        if (metricName == null) {
+            sendError(message, "metric name must be specified");
+            return;
+        }
+        HttpClientRequest request = client.delete("/api/v1/metric/"+metricName, new Handler<HttpClientResponse>() {
+            @Override
+            public void handle(final HttpClientResponse response) {
+            response.bodyHandler(new Handler<Buffer>() {
+                public void handle(Buffer body) {
+                int responseCode = response.statusCode();
+                if (responseCode == 204) {
+                    sendOK(message);
+                }
+                else{
+                    String errorMessage =  "unexpected response deleting metric from KairosDB: " + response.statusCode() + " " + response.statusMessage();
+                    container.logger().error(errorMessage);
+                    sendError(message, errorMessage);
+                }
+                }
+            });
+            }
+        });
+        request.end();
     }
 
     private void version(final Message<JsonObject> message) {
         HttpClientRequest request = client.get("/api/v1/version", new Handler<HttpClientResponse>() {
             @Override
             public void handle(final HttpClientResponse response) {
-            response.bodyHandler(new Handler<Buffer>() {
-                public void handle(Buffer body) {
-                int responseCode = response.statusCode();
-                if (responseCode == 200) {
-                    JsonObject responseObject = new JsonObject(body.toString());
-                    sendOK(message, responseObject);
-                }
-                else{
-                    String errorMessage =  "unexpected response requesting version KairosDB: " + response.statusCode() + " " + response.statusMessage();
-                    container.logger().error(errorMessage);
-                    sendError(message, errorMessage);
-                }
-                }
-            });
+                response.bodyHandler(new Handler<Buffer>() {
+                    public void handle(Buffer body) {
+                        int responseCode = response.statusCode();
+                        if (responseCode == 200) {
+                            JsonObject responseObject = new JsonObject(body.toString());
+                            sendOK(message, responseObject);
+                        }
+                        else{
+                            String errorMessage =  "unexpected response requesting version KairosDB: " + response.statusCode() + " " + response.statusMessage();
+                            container.logger().error(errorMessage);
+                            sendError(message, errorMessage);
+                        }
+                    }
+                });
             }
         });
         request.end();
