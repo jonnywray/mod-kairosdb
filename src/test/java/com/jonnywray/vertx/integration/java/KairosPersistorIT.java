@@ -39,6 +39,57 @@ public class KairosPersistorIT extends TestVerticle {
 
 
     @Test
+    public void testListTagNames() {
+        JsonObject commandObject = new JsonObject();
+        commandObject.putString("action", "list_tag_names");
+        vertx.eventBus().send("vertx.kairospersistor", commandObject, new Handler<Message<JsonObject>>() {
+            @Override
+            public void handle(Message<JsonObject> reply) {
+                JsonObject response = reply.body();
+                System.out.println(response.encodePrettily());
+                assertTrue("Response status is null", response.getString("status") != null);
+                assertEquals("Response status is not ok", "ok", response.getString("status"));
+                assertTrue("Response has no results", response.getArray("results") != null);
+                testComplete();
+            }
+        });
+    }
+
+    @Test
+    public void testListTagValues() {
+        JsonObject commandObject = new JsonObject();
+        commandObject.putString("action", "list_tag_values");
+        vertx.eventBus().send("vertx.kairospersistor", commandObject, new Handler<Message<JsonObject>>() {
+            @Override
+            public void handle(Message<JsonObject> reply) {
+                JsonObject response = reply.body();
+                System.out.println(response.encodePrettily());
+                assertTrue("Response status is null", response.getString("status") != null);
+                assertEquals("Response status is not ok", "ok", response.getString("status"));
+                assertTrue("Response has no results", response.getArray("results") != null);
+                testComplete();
+            }
+        });
+    }
+
+    @Test
+    public void testListMetricNames() {
+        JsonObject commandObject = new JsonObject();
+        commandObject.putString("action", "list_metric_names");
+        vertx.eventBus().send("vertx.kairospersistor", commandObject, new Handler<Message<JsonObject>>() {
+            @Override
+            public void handle(Message<JsonObject> reply) {
+                JsonObject response = reply.body();
+                System.out.println(response.encodePrettily());
+                assertTrue("Response status is null", response.getString("status") != null);
+                assertEquals("Response status is not ok", "ok", response.getString("status"));
+                assertTrue("Response has no results", response.getArray("results") != null);
+                testComplete();
+            }
+        });
+    }
+
+    @Test
     public void testVersion() {
         JsonObject commandObject = new JsonObject();
         commandObject.putString("action", "version");

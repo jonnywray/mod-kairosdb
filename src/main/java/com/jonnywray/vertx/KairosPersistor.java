@@ -77,6 +77,15 @@ public class KairosPersistor extends BusModBase implements Handler<Message<JsonO
             case "add_data_points" :
                 addDataPoints(message);
                 break;
+            case "list_metric_names":
+                listMetricNames(message);
+                break;
+            case "list_tag_names":
+                listTagNames(message);
+                break;
+            case "list_tag_values":
+                listTagValues(message);
+                break;
             default:
                 sendError(message, "unsupported action specified: "+action);
         }
@@ -94,7 +103,7 @@ public class KairosPersistor extends BusModBase implements Handler<Message<JsonO
                     sendOK(message, responseObject);
                 }
                 else{
-                    String errorMessage =  "unexpected response sending data points to KairosDB: " + response.statusCode() + " " + response.statusMessage();
+                    String errorMessage =  "unexpected response requesting version KairosDB: " + response.statusCode() + " " + response.statusMessage();
                     container.logger().error(errorMessage);
                     sendError(message, errorMessage);
                 }
@@ -138,5 +147,74 @@ public class KairosPersistor extends BusModBase implements Handler<Message<JsonO
                 .end();
     }
 
+
+    private void listMetricNames(final Message<JsonObject> message) {
+        HttpClientRequest request = client.get("/api/v1/metricnames", new Handler<HttpClientResponse>() {
+            @Override
+            public void handle(final HttpClientResponse response) {
+                response.bodyHandler(new Handler<Buffer>() {
+                    public void handle(Buffer body) {
+                        int responseCode = response.statusCode();
+                        if (responseCode == 200) {
+                            JsonObject responseObject = new JsonObject(body.toString());
+                            sendOK(message, responseObject);
+                        }
+                        else{
+                            String errorMessage =  "unexpected response requesting metric names KairosDB: " + response.statusCode() + " " + response.statusMessage();
+                            container.logger().error(errorMessage);
+                            sendError(message, errorMessage);
+                        }
+                    }
+                });
+            }
+        });
+        request.end();
+    }
+
+    private void listTagNames(final Message<JsonObject> message) {
+        HttpClientRequest request = client.get("/api/v1/tagnames", new Handler<HttpClientResponse>() {
+            @Override
+            public void handle(final HttpClientResponse response) {
+                response.bodyHandler(new Handler<Buffer>() {
+                    public void handle(Buffer body) {
+                        int responseCode = response.statusCode();
+                        if (responseCode == 200) {
+                            JsonObject responseObject = new JsonObject(body.toString());
+                            sendOK(message, responseObject);
+                        }
+                        else{
+                            String errorMessage =  "unexpected response requesting tag names KairosDB: " + response.statusCode() + " " + response.statusMessage();
+                            container.logger().error(errorMessage);
+                            sendError(message, errorMessage);
+                        }
+                    }
+                });
+            }
+        });
+        request.end();
+    }
+
+    private void listTagValues(final Message<JsonObject> message) {
+        HttpClientRequest request = client.get("/api/v1/tagvalues", new Handler<HttpClientResponse>() {
+            @Override
+            public void handle(final HttpClientResponse response) {
+                response.bodyHandler(new Handler<Buffer>() {
+                    public void handle(Buffer body) {
+                        int responseCode = response.statusCode();
+                        if (responseCode == 200) {
+                            JsonObject responseObject = new JsonObject(body.toString());
+                            sendOK(message, responseObject);
+                        }
+                        else{
+                            String errorMessage =  "unexpected response requesting tag values KairosDB: " + response.statusCode() + " " + response.statusMessage();
+                            container.logger().error(errorMessage);
+                            sendError(message, errorMessage);
+                        }
+                    }
+                });
+            }
+        });
+        request.end();
+    }
 
 }
