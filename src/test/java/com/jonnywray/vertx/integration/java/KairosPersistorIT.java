@@ -49,7 +49,6 @@ public class KairosPersistorIT extends TestVerticle {
             @Override
             public void handle(Message<JsonObject> reply) {
                 JsonObject response = reply.body();
-                System.out.println(response.encodePrettily());
                 assertTrue("Response status is null", response.getString("status") != null);
                 assertEquals("Response status is not ok", "ok", response.getString("status"));
                 testComplete();
@@ -65,7 +64,6 @@ public class KairosPersistorIT extends TestVerticle {
             @Override
             public void handle(Message<JsonObject> reply) {
                 JsonObject response = reply.body();
-                System.out.println(response.encodePrettily());
                 assertTrue("Response status is null", response.getString("status") != null);
                 assertEquals("Response status is not error", "error", response.getString("status"));
                 assertEquals("Response message is not correct", "metric name must be specified", response.getString("message"));
