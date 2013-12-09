@@ -28,9 +28,6 @@ import org.vertx.java.core.http.HttpClientRequest;
 import org.vertx.java.core.http.HttpClientResponse;
 import org.vertx.java.core.json.JsonObject;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Verticle implementing persistence service to the <a href="https://code.google.com/p/kairosdb/">KairosDB time series database</a>
  *
@@ -43,7 +40,6 @@ public class KairosPersistor extends BusModBase implements Handler<Message<JsonO
     protected int port;
 
     protected HttpClient client;
-    private Map<String, Handler<Message<JsonObject>>> commandDelegates = new HashMap<>();
 
     @Override
     public void start() {
@@ -58,108 +54,82 @@ public class KairosPersistor extends BusModBase implements Handler<Message<JsonO
                 .setHost(host)
                 .setKeepAlive(true)
                 .setSSL(false);
-        initializeDelegates();
         eb.registerHandler(address, this);
     }
 
-    @Override
     public void handle(Message<JsonObject> message) {
         String action = message.body().getString("action");
         if (action == null) {
             sendError(message, "action must be specified");
             return;
         }
-        if(!commandDelegates.containsKey(action)){
-            sendError(message, "action "+action+" is not supported");
+        switch (action){
+            case "version" :
+                version(message);
+                break;
+            case "add_data_points" :
+                addDataPoints(message);
+                break;
+            default:
+                sendError(message, "unsupported action specified: "+action);
+        }
+    }
+
+    private void version(final Message<JsonObject> message) {
+        HttpClientRequest request = client.get("/api/v1/version", new Handler<HttpClientResponse>() {
+            @Override
+            public void handle(final HttpClientResponse response) {
+            response.bodyHandler(new Handler<Buffer>() {
+                public void handle(Buffer body) {
+                int responseCode = response.statusCode();
+                if (responseCode == 200) {
+                    JsonObject responseObject = new JsonObject(body.toString());
+                    sendOK(message, responseObject);
+                }
+                else{
+                    String errorMessage =  "unexpected response sending data points to KairosDB: " + response.statusCode() + " " + response.statusMessage();
+                    container.logger().error(errorMessage);
+                    sendError(message, errorMessage);
+                }
+                }
+            });
+            }
+        });
+        request.end();
+    }
+
+    private void addDataPoints(final Message<JsonObject> message) {
+        HttpClientRequest request = client.post("/api/v1/datapoints/", new Handler<HttpClientResponse>() {
+            @Override
+            public void handle(HttpClientResponse response) {
+            int responseCode = response.statusCode();
+            if (responseCode == 204) {
+                sendOK(message);
+            }
+            else{
+                String errorMessage =  "unexpected response sending data points to KairosDB: " + response.statusCode() + " " + response.statusMessage();
+                container.logger().error(errorMessage);
+                sendError(message, errorMessage);
+            }
+            }
+        });
+
+        JsonObject dataPoints = message.body().getObject("datapoints");
+        if(dataPoints == null){
+            sendError(message, "data points object is not specified");
             return;
         }
-        Handler<Message<JsonObject>> delegate = commandDelegates.get(action);
-        delegate.handle(message);
-    }
-
-    private void initializeDelegates(){
-        commandDelegates.put("version", new VersionHandler());
-        commandDelegates.put("add_data_points", new AddDataPointsHandler());
-    }
-
-    private class VersionHandler implements Handler<Message<JsonObject>>{
-
-        @Override
-        public void handle(final Message<JsonObject> message) {
-            HttpClientRequest request = client.get("/api/v1/version", new Handler<HttpClientResponse>() {
-                @Override
-                public void handle(final HttpClientResponse response) {
-                    response.bodyHandler(new Handler<Buffer>() {
-                        public void handle(Buffer body) {
-                            int responseCode = response.statusCode();
-                            if (responseCode == 200) {
-                                JsonObject responseObject = new JsonObject(body.toString());
-                                sendOK(message, responseObject);
-                            }
-                            else{
-                                String errorMessage =  "Unexpected response sending data points to KairosDB: " + response.statusCode() + " " + response.statusMessage();
-                                container.logger().error(errorMessage);
-                                sendError(message, errorMessage);
-                            }
-                        }
-                    });
-                }
-            });
-            request.end();
+        JsonValidator validator = new JsonValidator();
+        if(!validator.validateDataPoints(dataPoints)){
+            sendError(message, "data points object was incorrectly formatted");
+            return;
         }
+        String encodedObject = dataPoints.encode();
+        request.putHeader(HttpHeaders.Names.CONTENT_TYPE, "application/json")
+                .putHeader(HttpHeaders.Names.CONTENT_LENGTH, Integer.toString(encodedObject.getBytes().length))
+                .write(encodedObject)
+                .end();
     }
 
-    private class AddDataPointsHandler implements Handler<Message<JsonObject>>{
-
-        @Override
-        public void handle(final Message<JsonObject> message) {
-            HttpClientRequest request = client.post("/api/v1/datapoints/", new Handler<HttpClientResponse>() {
-                @Override
-                public void handle(HttpClientResponse response) {
-                    int responseCode = response.statusCode();
-                    if (responseCode == 204) {
-                        sendOK(message);
-                    }
-                    else{
-                        String errorMessage =  "Unexpected response sending data points to KairosDB: " + response.statusCode() + " " + response.statusMessage();
-                        container.logger().error(errorMessage);
-                        sendError(message, errorMessage);
-                    }
-                }
-            });
-
-            JsonObject dataPoints = message.body().getObject("datapoints");
-            if(dataPoints == null){
-                sendError(message, "Data points object is not specified");
-                return;
-            }
-            if(!validateDataPoints(dataPoints)){
-                sendError(message, "Data points object was incorrectly formatted");
-                return;
-            }
-            String encodedObject = dataPoints.encode();
-            request.putHeader(HttpHeaders.Names.CONTENT_TYPE, "application/json")
-                    .putHeader(HttpHeaders.Names.CONTENT_LENGTH, Integer.toString(encodedObject.getBytes().length))
-                    .write(encodedObject)
-                    .end();
-        }
-
-        private boolean validateDataPoints(JsonObject dataPoints){
-            if(dataPoints == null){
-                return false;
-            }
-            if(dataPoints.getString("name") == null){
-                return false;
-            }
-            if(dataPoints.getObject("tags") == null || dataPoints.getObject("tags").size() == 0){
-                return false;
-            }
-            boolean validSingle = dataPoints.getNumber("timestamp") != null && dataPoints.getNumber("value") != null;
-            if(dataPoints.getArray("datapoints") == null && !validSingle){
-                return false;
-            }
-            return true;
-        }
-    }
 
 }

@@ -57,6 +57,8 @@ public class KairosPersistorIT extends TestVerticle {
 
     @Test
     public void testAddDataPointsSingle() {
+
+
         JsonObject commandObject = new JsonObject();
         commandObject.putString("action", "add_data_points");
 
@@ -105,7 +107,7 @@ public class KairosPersistorIT extends TestVerticle {
                 JsonObject response = reply.body();
                 assertTrue("Response status is null", response.getString("status") != null);
                 assertEquals("Response status is not error", "error", response.getString("status"));
-                assertEquals("Response message is not correct", "Data points object is not specified", response.getString("message"));
+                assertEquals("Response message is not correct", "data points object is not specified", response.getString("message"));
                 testComplete();
             }
         });
@@ -123,6 +125,23 @@ public class KairosPersistorIT extends TestVerticle {
                 JsonObject response = reply.body();
                 assertTrue("Response status is null", response.getString("status") != null);
                 assertEquals("Response status is not error", "error", response.getString("status"));
+                testComplete();
+            }
+        });
+    }
+
+
+    @Test
+    public void testInvalidAction() {
+        JsonObject commandObject = new JsonObject();
+        commandObject.putString("action", "invalid");
+        vertx.eventBus().send("vertx.kairospersistor", commandObject, new Handler<Message<JsonObject>>() {
+            @Override
+            public void handle(Message<JsonObject> reply) {
+                JsonObject response = reply.body();
+                assertTrue("Response status is null", response.getString("status") != null);
+                assertEquals("Response status is not error", "error", response.getString("status"));
+                assertEquals("Response message is not correct", "unsupported action specified: invalid", response.getString("message"));
                 testComplete();
             }
         });
