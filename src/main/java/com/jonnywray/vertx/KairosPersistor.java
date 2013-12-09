@@ -57,6 +57,13 @@ public class KairosPersistor extends BusModBase implements Handler<Message<JsonO
         eb.registerHandler(address, this);
     }
 
+    @Override
+    public void stop(){
+        if(client != null){
+            client.close();
+        }
+    }
+
     public void handle(Message<JsonObject> message) {
         String action = message.body().getString("action");
         if (action == null) {
