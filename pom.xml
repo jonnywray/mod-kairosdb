@@ -8,7 +8,7 @@
   <packaging>jar</packaging>
   <version>1.0-SNAPSHOT</version>
   <name>Vertx Persistence Module for KairosDB</name>
-  <url>https://bitbucket.org/jwray/mod-kairosdb</url>
+  <url>https://github.com/jonnywray/mod-kairosdb</url>
   <description>
       A vertx persistence module for the KairosDB time series database
   </description>
