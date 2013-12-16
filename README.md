@@ -17,7 +17,7 @@ The module takes the following configuration, as
 ```
 where the parameters are
 
-* `address`: The main address for the module. Every module has a main address. Defaults to `vertx.kairospersistor`
+* `address`: The main address for the module. Every module has a main address. Defaults to `jonnywray.kairospersistor`
 * `host`: Host name or ip address of the KairosDB instance. Defaults to `localhost`
 * `port`: Port at which the KairosDB instance is listening. Defaults to `8080`
 
