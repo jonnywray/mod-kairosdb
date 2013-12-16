@@ -45,7 +45,7 @@ public class KairosPersistorIT extends TestVerticle {
         JsonObject commandObject = new JsonObject();
         commandObject.putString("action", "delete_metric");
         commandObject.putString("metric_name", "fake.metric");
-        vertx.eventBus().send("vertx.kairospersistor", commandObject, new Handler<Message<JsonObject>>() {
+        vertx.eventBus().send("jonnywray.kairospersistor", commandObject, new Handler<Message<JsonObject>>() {
             @Override
             public void handle(Message<JsonObject> reply) {
                 JsonObject response = reply.body();
@@ -60,7 +60,7 @@ public class KairosPersistorIT extends TestVerticle {
     public void testDeleteMetricNoName() {
         JsonObject commandObject = new JsonObject();
         commandObject.putString("action", "delete_metric");
-        vertx.eventBus().send("vertx.kairospersistor", commandObject, new Handler<Message<JsonObject>>() {
+        vertx.eventBus().send("jonnywray.kairospersistor", commandObject, new Handler<Message<JsonObject>>() {
             @Override
             public void handle(Message<JsonObject> reply) {
                 JsonObject response = reply.body();
@@ -77,7 +77,7 @@ public class KairosPersistorIT extends TestVerticle {
     public void testListTagNames() {
         JsonObject commandObject = new JsonObject();
         commandObject.putString("action", "list_tag_names");
-        vertx.eventBus().send("vertx.kairospersistor", commandObject, new Handler<Message<JsonObject>>() {
+        vertx.eventBus().send("jonnywray.kairospersistor", commandObject, new Handler<Message<JsonObject>>() {
             @Override
             public void handle(Message<JsonObject> reply) {
                 JsonObject response = reply.body();
@@ -93,7 +93,7 @@ public class KairosPersistorIT extends TestVerticle {
     public void testListTagValues() {
         JsonObject commandObject = new JsonObject();
         commandObject.putString("action", "list_tag_values");
-        vertx.eventBus().send("vertx.kairospersistor", commandObject, new Handler<Message<JsonObject>>() {
+        vertx.eventBus().send("jonnywray.kairospersistor", commandObject, new Handler<Message<JsonObject>>() {
             @Override
             public void handle(Message<JsonObject> reply) {
                 JsonObject response = reply.body();
@@ -109,7 +109,7 @@ public class KairosPersistorIT extends TestVerticle {
     public void testListMetricNames() {
         JsonObject commandObject = new JsonObject();
         commandObject.putString("action", "list_metric_names");
-        vertx.eventBus().send("vertx.kairospersistor", commandObject, new Handler<Message<JsonObject>>() {
+        vertx.eventBus().send("jonnywray.kairospersistor", commandObject, new Handler<Message<JsonObject>>() {
             @Override
             public void handle(Message<JsonObject> reply) {
                 JsonObject response = reply.body();
@@ -125,7 +125,7 @@ public class KairosPersistorIT extends TestVerticle {
     public void testVersion() {
         JsonObject commandObject = new JsonObject();
         commandObject.putString("action", "version");
-        vertx.eventBus().send("vertx.kairospersistor", commandObject, new Handler<Message<JsonObject>>() {
+        vertx.eventBus().send("jonnywray.kairospersistor", commandObject, new Handler<Message<JsonObject>>() {
             @Override
             public void handle(Message<JsonObject> reply) {
                 JsonObject response = reply.body();
@@ -149,7 +149,7 @@ public class KairosPersistorIT extends TestVerticle {
         dataPoints.putObject("tags", exampleTags());
         commandObject.putObject("datapoints", dataPoints);
 
-        vertx.eventBus().send("vertx.kairospersistor", commandObject, new Handler<Message<JsonObject>>() {
+        vertx.eventBus().send("jonnywray.kairospersistor", commandObject, new Handler<Message<JsonObject>>() {
             @Override
             public void handle(Message<JsonObject> reply) {
                 JsonObject response = reply.body();
@@ -169,7 +169,7 @@ public class KairosPersistorIT extends TestVerticle {
         dataPoints.putObject("tags", exampleTags());
         commandObject.putObject("datapoints", dataPoints);
 
-        vertx.eventBus().send("vertx.kairospersistor", commandObject, new Handler<Message<JsonObject>>() {
+        vertx.eventBus().send("jonnywray.kairospersistor", commandObject, new Handler<Message<JsonObject>>() {
             @Override
             public void handle(Message<JsonObject> reply) {
                 JsonObject response = reply.body();
@@ -184,7 +184,7 @@ public class KairosPersistorIT extends TestVerticle {
     public void testAddDataPointsWithEmptyCommand() {
         JsonObject commandObject = new JsonObject();
         commandObject.putString("action", "add_data_points");
-        vertx.eventBus().send("vertx.kairospersistor", commandObject, new Handler<Message<JsonObject>>() {
+        vertx.eventBus().send("jonnywray.kairospersistor", commandObject, new Handler<Message<JsonObject>>() {
             @Override
             public void handle(Message<JsonObject> reply) {
                 JsonObject response = reply.body();
@@ -202,7 +202,7 @@ public class KairosPersistorIT extends TestVerticle {
         commandObject.putString("action", "add_data_points");
         commandObject.putObject("datapoints", exampleSingleDataPoint());
 
-        vertx.eventBus().send("vertx.kairospersistor", commandObject, new Handler<Message<JsonObject>>() {
+        vertx.eventBus().send("jonnywray.kairospersistor", commandObject, new Handler<Message<JsonObject>>() {
             @Override
             public void handle(Message<JsonObject> reply) {
                 JsonObject response = reply.body();
@@ -218,7 +218,7 @@ public class KairosPersistorIT extends TestVerticle {
     public void testInvalidAction() {
         JsonObject commandObject = new JsonObject();
         commandObject.putString("action", "invalid");
-        vertx.eventBus().send("vertx.kairospersistor", commandObject, new Handler<Message<JsonObject>>() {
+        vertx.eventBus().send("jonnywray.kairospersistor", commandObject, new Handler<Message<JsonObject>>() {
             @Override
             public void handle(Message<JsonObject> reply) {
                 JsonObject response = reply.body();
