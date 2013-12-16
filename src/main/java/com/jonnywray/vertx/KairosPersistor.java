@@ -45,7 +45,7 @@ public class KairosPersistor extends BusModBase implements Handler<Message<JsonO
     public void start() {
         super.start();
 
-        address = getOptionalStringConfig("address", "vertx.kairospersistor");
+        address = getOptionalStringConfig("address", "jonnywray.kairospersistor");
         host = getOptionalStringConfig("host", "localhost");
         port = getOptionalIntConfig("port", 8080);
 
