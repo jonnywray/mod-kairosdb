@@ -81,7 +81,6 @@ specify what points are to be deleted.
   "action" : "delete_data_points",
   "query" : {
          <KairosDB query object>
-    }
   }
 }
 ```
@@ -170,6 +169,67 @@ with a successful response looking like, for example,
 }
 ```
 
+### *Query Metrics*
+
+This operation will return a list of metric values matching the query. The JSON object parameter `query` is a KairosDB query used to
+specify what points are to be returned.
+
+```
+{
+  "action" : "query_metrics",
+  "query" : {
+         <KairosDB query object>
+  }
+}
+```
+
+A successful request will return, for example,
+
+```
+{
+  "status" : "ok",
+  "queries" : [ {
+       "sample_size" : 0,
+       "results" : [ {
+         "name" : "integration.tests",
+         "tags" : {
+           "test_type" : [ "integration" ]
+         },
+         "values" : [ ]
+       } ]
+  } ]
+}
+```
+
+### *Query Metric Tags*
+This operation will perform a query but only return the tag information. A JSON object parameter `query` is a KairosDB query used to
+specify what points are to be returned.
+
+```
+{
+  "action" : "query_metric_tags",
+  "query" : {
+         <KairosDB query object>
+  }
+}
+```
+
+A successful request will return
+
+```
+{
+  "status" : "ok",
+  "queries" : [ {
+      "results" : [ {
+        "name" : "integration.tests",
+        "tags" : {
+          "test_type" : [ "integration" ]
+        },
+        "values" : [ ]
+      } ]
+  } ]
+}
+```
 
 ### *Version*
 
