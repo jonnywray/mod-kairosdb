@@ -45,6 +45,70 @@ public class KairosPersistorIT extends TestVerticle {
      * Test using an empty query
      */
     @Test
+    public void testInvalidEmptyQueryMetricTags() {
+        JsonObject validQuery = new JsonObject();
+        JsonObject commandObject = new JsonObject();
+        commandObject.putString("action", "query_metric_tags");
+        commandObject.putObject("query", validQuery);
+        vertx.eventBus().send("jonnywray.kairospersistor", commandObject, new Handler<Message<JsonObject>>() {
+            @Override
+            public void handle(Message<JsonObject> reply) {
+                JsonObject response = reply.body();
+                assertTrue("Response status is null", response.getString("status") != null);
+                assertEquals("Response status is not error", "error", response.getString("status"));
+                assertEquals("Response message is not correct", "error querying metrics from KairosDB: 400 Bad Request", response.getString("message"));
+                testComplete();
+            }
+        });
+    }
+
+    /**
+     * Test using a query missing the tag definitions
+     */
+    @Test
+    public void testInvalidPartialQueryMetricTags() {
+        JsonObject commandObject = new JsonObject();
+        commandObject.putString("action", "query_metric_tags");
+        commandObject.putObject("query", invalidMetricQuery());
+        vertx.eventBus().send("jonnywray.kairospersistor", commandObject, new Handler<Message<JsonObject>>() {
+            @Override
+            public void handle(Message<JsonObject> reply) {
+                JsonObject response = reply.body();
+                assertTrue("Response status is null", response.getString("status") != null);
+                assertEquals("Response status is not error", "error", response.getString("status"));
+                assertEquals("Response message is not correct", "error querying metrics from KairosDB: 400 Bad Request", response.getString("message"));
+                testComplete();
+            }
+        });
+    }
+
+    /**
+     * Test using a valid query. Note that the response array name here is based on tests and disagrees with the documentation.
+     */
+    @Test
+    public void testValidQueryMetricTags() {
+
+        JsonObject commandObject = new JsonObject();
+        commandObject.putString("action", "query_metric_tags");
+        commandObject.putObject("query", validMetricQuery());
+        vertx.eventBus().send("jonnywray.kairospersistor", commandObject, new Handler<Message<JsonObject>>() {
+            @Override
+            public void handle(Message<JsonObject> reply) {
+                JsonObject response = reply.body();
+                System.out.println(response.encodePrettily());
+                assertTrue("Response status is null", response.getString("status") != null);
+                assertEquals("Response status is not ok", "ok", response.getString("status"));
+                assertTrue("Response queries array is null", response.getArray("queries") != null);
+                testComplete();
+            }
+        });
+    }
+
+
+    /**
+     * Test using an empty query
+     */
+    @Test
     public void testInvalidEmptyQueryMetrics() {
         JsonObject validQuery = new JsonObject();
         JsonObject commandObject = new JsonObject();
@@ -54,7 +118,6 @@ public class KairosPersistorIT extends TestVerticle {
             @Override
             public void handle(Message<JsonObject> reply) {
                 JsonObject response = reply.body();
-                System.out.println(response.encodePrettily());
                 assertTrue("Response status is null", response.getString("status") != null);
                 assertEquals("Response status is not error", "error", response.getString("status"));
                 assertEquals("Response message is not correct", "error querying metrics from KairosDB: 400 Bad Request", response.getString("message"));
@@ -98,6 +161,7 @@ public class KairosPersistorIT extends TestVerticle {
                 JsonObject response = reply.body();
                 assertTrue("Response status is null", response.getString("status") != null);
                 assertEquals("Response status is not ok", "ok", response.getString("status"));
+                assertTrue("Response metrics array is null", response.getArray("queries") != null);
                 testComplete();
             }
         });
@@ -113,7 +177,6 @@ public class KairosPersistorIT extends TestVerticle {
             @Override
             public void handle(Message<JsonObject> reply) {
                 JsonObject response = reply.body();
-                System.out.println(response.encodePrettily());
                 assertTrue("Response status is null", response.getString("status") != null);
                 assertEquals("Response status is not ok", "ok", response.getString("status"));
                 testComplete();

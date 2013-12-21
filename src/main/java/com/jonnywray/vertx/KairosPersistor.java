@@ -35,6 +35,9 @@ import org.vertx.java.core.json.JsonObject;
  */
 public class KairosPersistor extends BusModBase implements Handler<Message<JsonObject>>{
 
+    private static final String JSON_CONTENT_TYPE = "application/json";
+    private static final String BASE_URI = "/api/v1/";
+
     protected String address;
     protected String host;
     protected int port;
@@ -106,7 +109,7 @@ public class KairosPersistor extends BusModBase implements Handler<Message<JsonO
             sendError(message, "metric query must be specified");
             return;
         }
-        HttpClientRequest request = client.post("/api/v1/datapoints/query", new Handler<HttpClientResponse>() {
+        HttpClientRequest request = client.post(BASE_URI+"datapoints/query", new Handler<HttpClientResponse>() {
             @Override
             public void handle(final HttpClientResponse response) {
                 response.bodyHandler(new Handler<Buffer>() {
@@ -125,14 +128,41 @@ public class KairosPersistor extends BusModBase implements Handler<Message<JsonO
             }
         });
         String encodedObject = query.encode();
-        request.putHeader(HttpHeaders.Names.CONTENT_TYPE, "application/json")
+        request.putHeader(HttpHeaders.Names.CONTENT_TYPE, JSON_CONTENT_TYPE)
                 .putHeader(HttpHeaders.Names.CONTENT_LENGTH, Integer.toString(encodedObject.getBytes().length))
                 .write(encodedObject)
                 .end();
     }
 
     private void queryMetricTags(final Message<JsonObject> message){
-
+        JsonObject query = message.body().getObject("query");
+        if (query == null) {
+            sendError(message, "metric query must be specified");
+            return;
+        }
+        HttpClientRequest request = client.post(BASE_URI+"datapoints/query/tags", new Handler<HttpClientResponse>() {
+            @Override
+            public void handle(final HttpClientResponse response) {
+                response.bodyHandler(new Handler<Buffer>() {
+                    public void handle(Buffer body) {
+                        int responseCode = response.statusCode();
+                        if (responseCode == 200) {
+                            JsonObject responseObject = new JsonObject(body.toString());
+                            sendOK(message, responseObject);
+                        } else {
+                            String errorMessage = "error querying metrics from KairosDB: " + response.statusCode() + " " + response.statusMessage();
+                            container.logger().error(errorMessage);
+                            sendError(message, errorMessage);
+                        }
+                    }
+                });
+            }
+        });
+        String encodedObject = query.encode();
+        request.putHeader(HttpHeaders.Names.CONTENT_TYPE, JSON_CONTENT_TYPE)
+                .putHeader(HttpHeaders.Names.CONTENT_LENGTH, Integer.toString(encodedObject.getBytes().length))
+                .write(encodedObject)
+                .end();
     }
 
     private void deleteMetric(final Message<JsonObject> message) {
@@ -141,7 +171,7 @@ public class KairosPersistor extends BusModBase implements Handler<Message<JsonO
             sendError(message, "metric name must be specified");
             return;
         }
-        HttpClientRequest request = client.delete("/api/v1/metric/"+metricName, new Handler<HttpClientResponse>() {
+        HttpClientRequest request = client.delete(BASE_URI+"metric/"+metricName, new Handler<HttpClientResponse>() {
             @Override
             public void handle(final HttpClientResponse response) {
             response.bodyHandler(new Handler<Buffer>() {
@@ -163,7 +193,7 @@ public class KairosPersistor extends BusModBase implements Handler<Message<JsonO
     }
 
     private void version(final Message<JsonObject> message) {
-        HttpClientRequest request = client.get("/api/v1/version", new Handler<HttpClientResponse>() {
+        HttpClientRequest request = client.get(BASE_URI+"version", new Handler<HttpClientResponse>() {
             @Override
             public void handle(final HttpClientResponse response) {
                 response.bodyHandler(new Handler<Buffer>() {
@@ -186,7 +216,7 @@ public class KairosPersistor extends BusModBase implements Handler<Message<JsonO
     }
 
     private void addDataPoints(final Message<JsonObject> message) {
-        HttpClientRequest request = client.post("/api/v1/datapoints/", new Handler<HttpClientResponse>() {
+        HttpClientRequest request = client.post(BASE_URI+"datapoints", new Handler<HttpClientResponse>() {
             @Override
             public void handle(HttpClientResponse response) {
             int responseCode = response.statusCode();
@@ -212,7 +242,7 @@ public class KairosPersistor extends BusModBase implements Handler<Message<JsonO
             return;
         }
         String encodedObject = dataPoints.encode();
-        request.putHeader(HttpHeaders.Names.CONTENT_TYPE, "application/json")
+        request.putHeader(HttpHeaders.Names.CONTENT_TYPE, JSON_CONTENT_TYPE)
                 .putHeader(HttpHeaders.Names.CONTENT_LENGTH, Integer.toString(encodedObject.getBytes().length))
                 .write(encodedObject)
                 .end();
@@ -220,7 +250,7 @@ public class KairosPersistor extends BusModBase implements Handler<Message<JsonO
 
 
     private void listMetricNames(final Message<JsonObject> message) {
-        HttpClientRequest request = client.get("/api/v1/metricnames", new Handler<HttpClientResponse>() {
+        HttpClientRequest request = client.get(BASE_URI+"metricnames", new Handler<HttpClientResponse>() {
             @Override
             public void handle(final HttpClientResponse response) {
                 response.bodyHandler(new Handler<Buffer>() {
@@ -243,7 +273,7 @@ public class KairosPersistor extends BusModBase implements Handler<Message<JsonO
     }
 
     private void listTagNames(final Message<JsonObject> message) {
-        HttpClientRequest request = client.get("/api/v1/tagnames", new Handler<HttpClientResponse>() {
+        HttpClientRequest request = client.get(BASE_URI+"tagnames", new Handler<HttpClientResponse>() {
             @Override
             public void handle(final HttpClientResponse response) {
                 response.bodyHandler(new Handler<Buffer>() {
@@ -266,7 +296,7 @@ public class KairosPersistor extends BusModBase implements Handler<Message<JsonO
     }
 
     private void listTagValues(final Message<JsonObject> message) {
-        HttpClientRequest request = client.get("/api/v1/tagvalues", new Handler<HttpClientResponse>() {
+        HttpClientRequest request = client.get(BASE_URI+"tagvalues", new Handler<HttpClientResponse>() {
             @Override
             public void handle(final HttpClientResponse response) {
                 response.bodyHandler(new Handler<Buffer>() {
