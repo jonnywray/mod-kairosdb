@@ -42,6 +42,67 @@ public class KairosPersistorIT extends TestVerticle {
     private static final long ONE_DAY = 1000 * 60 * 60 * 24;
 
     /**
+     * Test delete data using an empty query
+     */
+    @Test
+    public void testInvalidEmptyDeleteDataPointsTags() {
+        JsonObject validQuery = new JsonObject();
+        JsonObject commandObject = new JsonObject();
+        commandObject.putString("action", "delete_data_points");
+        commandObject.putObject("query", validQuery);
+        vertx.eventBus().send("jonnywray.kairospersistor", commandObject, new Handler<Message<JsonObject>>() {
+            @Override
+            public void handle(Message<JsonObject> reply) {
+                JsonObject response = reply.body();
+                assertTrue("Response status is null", response.getString("status") != null);
+                assertEquals("Response status is not error", "error", response.getString("status"));
+                assertEquals("Response message is not correct", "error deleting data points: 400 Bad Request", response.getString("message"));
+                testComplete();
+            }
+        });
+    }
+
+    /**
+     * Test delete data using a query missing the tag definitions
+     */
+    @Test
+    public void testInvalidDeleteDataPointsTags() {
+        JsonObject commandObject = new JsonObject();
+        commandObject.putString("action", "delete_data_points");
+        commandObject.putObject("query", invalidMetricQuery());
+        vertx.eventBus().send("jonnywray.kairospersistor", commandObject, new Handler<Message<JsonObject>>() {
+            @Override
+            public void handle(Message<JsonObject> reply) {
+                JsonObject response = reply.body();
+                assertTrue("Response status is null", response.getString("status") != null);
+                assertEquals("Response status is not error", "error", response.getString("status"));
+                assertEquals("Response message is not correct", "error deleting data points: 400 Bad Request", response.getString("message"));
+                testComplete();
+            }
+        });
+    }
+
+    /**
+     * Test delete data using a valid query.
+     */
+    @Test
+    public void testValidDeleteDataPointsTags() {
+
+        JsonObject commandObject = new JsonObject();
+        commandObject.putString("action", "delete_data_points");
+        commandObject.putObject("query", validMetricQueryTwo());
+        vertx.eventBus().send("jonnywray.kairospersistor", commandObject, new Handler<Message<JsonObject>>() {
+            @Override
+            public void handle(Message<JsonObject> reply) {
+                JsonObject response = reply.body();
+                assertTrue("Response status is null", response.getString("status") != null);
+                assertEquals("Response status is not ok", "ok", response.getString("status"));
+                testComplete();
+            }
+        });
+    }
+
+    /**
      * Test using an empty query
      */
     @Test
@@ -56,7 +117,7 @@ public class KairosPersistorIT extends TestVerticle {
                 JsonObject response = reply.body();
                 assertTrue("Response status is null", response.getString("status") != null);
                 assertEquals("Response status is not error", "error", response.getString("status"));
-                assertEquals("Response message is not correct", "error querying metrics from KairosDB: 400 Bad Request", response.getString("message"));
+                assertEquals("Response message is not correct", "error querying metric tags: 400 Bad Request", response.getString("message"));
                 testComplete();
             }
         });
@@ -76,7 +137,7 @@ public class KairosPersistorIT extends TestVerticle {
                 JsonObject response = reply.body();
                 assertTrue("Response status is null", response.getString("status") != null);
                 assertEquals("Response status is not error", "error", response.getString("status"));
-                assertEquals("Response message is not correct", "error querying metrics from KairosDB: 400 Bad Request", response.getString("message"));
+                assertEquals("Response message is not correct", "error querying metric tags: 400 Bad Request", response.getString("message"));
                 testComplete();
             }
         });
@@ -95,7 +156,6 @@ public class KairosPersistorIT extends TestVerticle {
             @Override
             public void handle(Message<JsonObject> reply) {
                 JsonObject response = reply.body();
-                System.out.println(response.encodePrettily());
                 assertTrue("Response status is null", response.getString("status") != null);
                 assertEquals("Response status is not ok", "ok", response.getString("status"));
                 assertTrue("Response queries array is null", response.getArray("queries") != null);
@@ -120,7 +180,7 @@ public class KairosPersistorIT extends TestVerticle {
                 JsonObject response = reply.body();
                 assertTrue("Response status is null", response.getString("status") != null);
                 assertEquals("Response status is not error", "error", response.getString("status"));
-                assertEquals("Response message is not correct", "error querying metrics from KairosDB: 400 Bad Request", response.getString("message"));
+                assertEquals("Response message is not correct", "error querying metrics: 400 Bad Request", response.getString("message"));
                 testComplete();
             }
         });
@@ -140,7 +200,7 @@ public class KairosPersistorIT extends TestVerticle {
                 JsonObject response = reply.body();
                 assertTrue("Response status is null", response.getString("status") != null);
                 assertEquals("Response status is not error", "error", response.getString("status"));
-                assertEquals("Response message is not correct", "error querying metrics from KairosDB: 400 Bad Request", response.getString("message"));
+                assertEquals("Response message is not correct", "error querying metrics: 400 Bad Request", response.getString("message"));
                 testComplete();
             }
         });
@@ -367,10 +427,24 @@ public class KairosPersistorIT extends TestVerticle {
         long oneDayPrevious = now - ONE_DAY;
         JsonObject validQuery = new JsonObject();
         validQuery.putNumber("start_absolute", oneDayPrevious);
-        JsonObject end = new JsonObject();
-        end.putString("value", "2");
-        end.putString("unit", "days");
-        validQuery.putObject("end_relative", end);
+        validQuery.putNumber("end_absolute", now);
+        JsonArray metrics = new JsonArray();
+        JsonObject metric = new JsonObject();
+        metric.putString("name", "integration.tests");
+
+        validQuery.putArray("metrics", metrics);
+        return validQuery;
+    }
+
+    private JsonObject validMetricQueryTwo(){
+        JsonObject start = new JsonObject();
+        start.putString("value", "1");
+        start.putString("unit", "hours");
+
+        JsonObject validQuery = new JsonObject();
+        validQuery.putNumber("cache_time", 0);
+        validQuery.putObject("start_relative", start);
+
         JsonArray metrics = new JsonArray();
         JsonObject metric = new JsonObject();
         metric.putString("name", "integration.tests");
