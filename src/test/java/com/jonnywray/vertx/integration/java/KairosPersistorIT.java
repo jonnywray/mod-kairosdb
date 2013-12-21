@@ -438,7 +438,7 @@ public class KairosPersistorIT extends TestVerticle {
 
     private JsonObject validMetricQueryTwo(){
         JsonObject start = new JsonObject();
-        start.putString("value", "1");
+        start.putString("value", "10");
         start.putString("unit", "hours");
 
         JsonObject validQuery = new JsonObject();
@@ -448,6 +448,7 @@ public class KairosPersistorIT extends TestVerticle {
         JsonArray metrics = new JsonArray();
         JsonObject metric = new JsonObject();
         metric.putString("name", "integration.tests");
+        metric.putObject("tags", new JsonObject());
 
         validQuery.putArray("metrics", metrics);
         return validQuery;
