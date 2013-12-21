@@ -33,8 +33,6 @@ import static org.vertx.testtools.VertxAssert.*;
  * Integration tests for the {@link com.jonnywray.vertx.KairosPersistor} against an externally running KairosDB with the
  * default configuration
  *
- * TODO: once various pieces are written write test sequences: insert query delete query
- *
  * @author Jonny Wray
  */
 public class KairosPersistorIT extends TestVerticle {
@@ -232,7 +230,7 @@ public class KairosPersistorIT extends TestVerticle {
     public void testDeleteMetricFakeMetric() {
         JsonObject commandObject = new JsonObject();
         commandObject.putString("action", "delete_metric");
-        commandObject.putString("metric_name", "fake.metric");
+        commandObject.putString("metric_name", "integration.tests");
         vertx.eventBus().send("jonnywray.kairospersistor", commandObject, new Handler<Message<JsonObject>>() {
             @Override
             public void handle(Message<JsonObject> reply) {
@@ -431,6 +429,7 @@ public class KairosPersistorIT extends TestVerticle {
         JsonArray metrics = new JsonArray();
         JsonObject metric = new JsonObject();
         metric.putString("name", "integration.tests");
+        metrics.add(metric);
 
         validQuery.putArray("metrics", metrics);
         return validQuery;
@@ -449,8 +448,10 @@ public class KairosPersistorIT extends TestVerticle {
         JsonObject metric = new JsonObject();
         metric.putString("name", "integration.tests");
         metric.putObject("tags", new JsonObject());
+        metrics.add(metric);
 
         validQuery.putArray("metrics", metrics);
+        System.out.println(validQuery.encodePrettily());
         return validQuery;
     }
 
