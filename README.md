@@ -71,6 +71,29 @@ If data insertion is successful the following message is returned
 }
 ```
 
+### *Delete data points*
+
+This operation will delete data points from the database. A JSON object parameter `query` is a KairosDB query used to
+specify what points are to be deleted.
+
+```
+{
+  "action" : "delete_data_points",
+  "query" : {
+         <KairosDB query object>
+    }
+  }
+}
+```
+
+A successful request will return
+
+```
+{
+  "status" : "ok"
+}
+```
+
 ### *Delete metric*
 
 In order to delete a metric send the following message to the module address
