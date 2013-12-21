@@ -73,7 +73,8 @@ If data insertion is successful the following message is returned
 
 ### *Delete data points*
 
-This operation will delete data points from the database. A JSON object parameter `query` is a KairosDB query used to
+This operation will delete data points from the database. A JSON object parameter `query` is a
+[KairosDB query](https://code.google.com/p/kairosdb/wiki/QueryMetrics) used to
 specify what points are to be deleted.
 
 ```
@@ -171,7 +172,8 @@ with a successful response looking like, for example,
 
 ### *Query Metrics*
 
-This operation will return a list of metric values matching the query. The JSON object parameter `query` is a KairosDB query used to
+This operation will return a list of metric values matching the query. The JSON object parameter `query` is a
+[KairosDB query](https://code.google.com/p/kairosdb/wiki/QueryMetrics) used to
 specify what points are to be returned.
 
 ```
@@ -202,7 +204,8 @@ A successful request will return, for example,
 ```
 
 ### *Query Metric Tags*
-This operation will perform a query but only return the tag information. A JSON object parameter `query` is a KairosDB query used to
+This operation will perform a query but only return the tag information. A JSON object parameter `query` is a
+[KairosDB query](https://code.google.com/p/kairosdb/wiki/QueryMetrics) used to
 specify what points are to be returned.
 
 ```
