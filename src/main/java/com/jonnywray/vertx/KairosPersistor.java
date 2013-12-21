@@ -86,12 +86,53 @@ public class KairosPersistor extends BusModBase implements Handler<Message<JsonO
             case "list_tag_values":
                 listTagValues(message);
                 break;
+            case "query_metrics":
+                queryMetrics(message);
+                break;
+            case "query_metric_tags":
+                queryMetricTags(message);
+                break;
             case "version" :
                 version(message);
                 break;
             default:
                 sendError(message, "unsupported action specified: "+action);
         }
+    }
+
+    private void queryMetrics(final Message<JsonObject> message){
+        JsonObject query = message.body().getObject("query");
+        if (query == null) {
+            sendError(message, "metric query must be specified");
+            return;
+        }
+        HttpClientRequest request = client.post("/api/v1/datapoints/query", new Handler<HttpClientResponse>() {
+            @Override
+            public void handle(final HttpClientResponse response) {
+                response.bodyHandler(new Handler<Buffer>() {
+                    public void handle(Buffer body) {
+                        int responseCode = response.statusCode();
+                        if (responseCode == 200) {
+                            JsonObject responseObject = new JsonObject(body.toString());
+                            sendOK(message, responseObject);
+                        } else {
+                            String errorMessage = "error querying metrics from KairosDB: " + response.statusCode() + " " + response.statusMessage();
+                            container.logger().error(errorMessage);
+                            sendError(message, errorMessage);
+                        }
+                    }
+                });
+            }
+        });
+        String encodedObject = query.encode();
+        request.putHeader(HttpHeaders.Names.CONTENT_TYPE, "application/json")
+                .putHeader(HttpHeaders.Names.CONTENT_LENGTH, Integer.toString(encodedObject.getBytes().length))
+                .write(encodedObject)
+                .end();
+    }
+
+    private void queryMetricTags(final Message<JsonObject> message){
+
     }
 
     private void deleteMetric(final Message<JsonObject> message) {

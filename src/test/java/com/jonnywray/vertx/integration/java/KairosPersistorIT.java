@@ -39,6 +39,70 @@ import static org.vertx.testtools.VertxAssert.*;
  */
 public class KairosPersistorIT extends TestVerticle {
 
+    private static final long ONE_DAY = 1000 * 60 * 60 * 24;
+
+    /**
+     * Test using an empty query
+     */
+    @Test
+    public void testInvalidEmptyQueryMetrics() {
+        JsonObject validQuery = new JsonObject();
+        JsonObject commandObject = new JsonObject();
+        commandObject.putString("action", "query_metrics");
+        commandObject.putObject("query", validQuery);
+        vertx.eventBus().send("jonnywray.kairospersistor", commandObject, new Handler<Message<JsonObject>>() {
+            @Override
+            public void handle(Message<JsonObject> reply) {
+                JsonObject response = reply.body();
+                System.out.println(response.encodePrettily());
+                assertTrue("Response status is null", response.getString("status") != null);
+                assertEquals("Response status is not error", "error", response.getString("status"));
+                assertEquals("Response message is not correct", "error querying metrics from KairosDB: 400 Bad Request", response.getString("message"));
+                testComplete();
+            }
+        });
+    }
+
+    /**
+     * Test using a query missing the tag definitions
+     */
+    @Test
+    public void testInvalidPartialQueryMetrics() {
+        JsonObject commandObject = new JsonObject();
+        commandObject.putString("action", "query_metrics");
+        commandObject.putObject("query", invalidMetricQuery());
+        vertx.eventBus().send("jonnywray.kairospersistor", commandObject, new Handler<Message<JsonObject>>() {
+            @Override
+            public void handle(Message<JsonObject> reply) {
+                JsonObject response = reply.body();
+                assertTrue("Response status is null", response.getString("status") != null);
+                assertEquals("Response status is not error", "error", response.getString("status"));
+                assertEquals("Response message is not correct", "error querying metrics from KairosDB: 400 Bad Request", response.getString("message"));
+                testComplete();
+            }
+        });
+    }
+
+    /**
+     * Test using a valid query
+     */
+    @Test
+    public void testValidQueryMetrics() {
+
+        JsonObject commandObject = new JsonObject();
+        commandObject.putString("action", "query_metrics");
+        commandObject.putObject("query", validMetricQuery());
+        vertx.eventBus().send("jonnywray.kairospersistor", commandObject, new Handler<Message<JsonObject>>() {
+            @Override
+            public void handle(Message<JsonObject> reply) {
+                JsonObject response = reply.body();
+                assertTrue("Response status is null", response.getString("status") != null);
+                assertEquals("Response status is not ok", "ok", response.getString("status"));
+                testComplete();
+            }
+        });
+    }
+
 
     @Test
     public void testDeleteMetricFakeMetric() {
@@ -49,6 +113,7 @@ public class KairosPersistorIT extends TestVerticle {
             @Override
             public void handle(Message<JsonObject> reply) {
                 JsonObject response = reply.body();
+                System.out.println(response.encodePrettily());
                 assertTrue("Response status is null", response.getString("status") != null);
                 assertEquals("Response status is not ok", "ok", response.getString("status"));
                 testComplete();
@@ -228,6 +293,41 @@ public class KairosPersistorIT extends TestVerticle {
                 testComplete();
             }
         });
+    }
+
+    /*
+     * Valid query with the minimal number of fields
+     */
+    private JsonObject validMetricQuery(){
+
+        long now = System.currentTimeMillis();
+        long oneDayPrevious = now - ONE_DAY;
+        JsonObject validQuery = new JsonObject();
+        validQuery.putNumber("start_absolute", oneDayPrevious);
+        JsonObject end = new JsonObject();
+        end.putString("value", "2");
+        end.putString("unit", "days");
+        validQuery.putObject("end_relative", end);
+        JsonArray metrics = new JsonArray();
+        JsonObject metric = new JsonObject();
+        metric.putString("name", "integration.tests");
+
+        validQuery.putArray("metrics", metrics);
+        return validQuery;
+    }
+
+    private JsonObject invalidMetricQuery(){
+
+        long now = System.currentTimeMillis();
+        long oneDayPrevious = now - ONE_DAY;
+
+        JsonObject query = new JsonObject();
+        query.putNumber("start_absolute", oneDayPrevious);
+        JsonObject end = new JsonObject();
+        end.putString("value", "2");
+        end.putString("unit", "days");
+        query.putObject("end_relative", end);
+        return query;
     }
 
     private JsonObject exampleMultipleDataPoint(){
