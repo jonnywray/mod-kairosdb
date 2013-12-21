@@ -18,7 +18,9 @@
 
 package com.jonnywray.vertx.integration.java;
 
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 import org.vertx.java.core.AsyncResult;
 import org.vertx.java.core.AsyncResultHandler;
 import org.vertx.java.core.Handler;
@@ -35,6 +37,7 @@ import static org.vertx.testtools.VertxAssert.*;
  *
  * @author Jonny Wray
  */
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class KairosPersistorIT extends TestVerticle {
 
     private static final long ONE_DAY = 1000 * 60 * 60 * 24;
@@ -451,7 +454,6 @@ public class KairosPersistorIT extends TestVerticle {
         metrics.add(metric);
 
         validQuery.putArray("metrics", metrics);
-        System.out.println(validQuery.encodePrettily());
         return validQuery;
     }
 
@@ -510,6 +512,24 @@ public class KairosPersistorIT extends TestVerticle {
                 assertTrue(asyncResult.succeeded());
                 assertNotNull("deploymentID should not be null", asyncResult.result());
                 startTests();
+            }
+        });
+    }
+
+    /**
+     * Not really a test but cleans up the database after all the tests are done
+     */
+    @Test
+    public void zzzzzzCleanUp(){
+        JsonObject commandObject = new JsonObject();
+        commandObject.putString("action", "delete_metric");
+        commandObject.putString("metric_name", "integration.tests");
+        vertx.eventBus().send("jonnywray.kairospersistor", commandObject, new Handler<Message<JsonObject>>() {
+            @Override
+            public void handle(Message<JsonObject> reply) {
+                JsonObject response = reply.body();
+                System.out.println("Clean up: "+response.getString("status"));
+                testComplete();
             }
         });
     }
