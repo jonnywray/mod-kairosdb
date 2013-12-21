@@ -28,6 +28,8 @@ import org.vertx.java.core.http.HttpClientRequest;
 import org.vertx.java.core.http.HttpClientResponse;
 import org.vertx.java.core.json.JsonObject;
 
+import java.io.UnsupportedEncodingException;
+
 /**
  * Verticle implementing persistence service to the <a href="https://code.google.com/p/kairosdb/">KairosDB time series database</a>
  *
@@ -119,6 +121,20 @@ public class KairosPersistor extends BusModBase implements Handler<Message<JsonO
         }
     }
 
+    private void writeObject(Message<JsonObject> message, HttpClientRequest request, JsonObject object){
+        try{
+            String encodedObject = object.encode();
+            request.putHeader(HttpHeaders.Names.CONTENT_TYPE, JSON_CONTENT_TYPE)
+                .putHeader(HttpHeaders.Names.CONTENT_LENGTH, Integer.toString(encodedObject.getBytes("UTF-8").length))
+                .write(encodedObject)
+                .end();
+        }
+        catch (UnsupportedEncodingException e){
+            container.logger().error("error converting JSON objects to byte[] with UTF-8 encoding", e);
+            sendError(message, "unable to encode command body");
+        }
+    }
+
     private void deleteDataPoints(final Message<JsonObject> message){
         JsonObject query = message.body().getObject("query");
         if (query == null) {
@@ -133,9 +149,8 @@ public class KairosPersistor extends BusModBase implements Handler<Message<JsonO
                         int responseCode = response.statusCode();
                         if (responseCode == 204) {
                             sendOK(message);
-                        }
-                        else{
-                            String errorMessage =  "error deleting data points: " + response.statusCode() + " " + response.statusMessage();
+                        } else {
+                            String errorMessage = "error deleting data points: " + response.statusCode() + " " + response.statusMessage();
                             container.logger().error(errorMessage);
                             sendError(message, errorMessage);
                         }
@@ -143,11 +158,7 @@ public class KairosPersistor extends BusModBase implements Handler<Message<JsonO
                 });
             }
         });
-        String encodedObject = query.encode();
-        request.putHeader(HttpHeaders.Names.CONTENT_TYPE, JSON_CONTENT_TYPE)
-                .putHeader(HttpHeaders.Names.CONTENT_LENGTH, Integer.toString(encodedObject.getBytes().length))
-                .write(encodedObject)
-                .end();
+        writeObject(message, request, query);
     }
 
     private void queryMetrics(final Message<JsonObject> message){
@@ -174,11 +185,7 @@ public class KairosPersistor extends BusModBase implements Handler<Message<JsonO
                 });
             }
         });
-        String encodedObject = query.encode();
-        request.putHeader(HttpHeaders.Names.CONTENT_TYPE, JSON_CONTENT_TYPE)
-                .putHeader(HttpHeaders.Names.CONTENT_LENGTH, Integer.toString(encodedObject.getBytes().length))
-                .write(encodedObject)
-                .end();
+        writeObject(message, request, query);
     }
 
     private void queryMetricTags(final Message<JsonObject> message){
@@ -205,11 +212,7 @@ public class KairosPersistor extends BusModBase implements Handler<Message<JsonO
                 });
             }
         });
-        String encodedObject = query.encode();
-        request.putHeader(HttpHeaders.Names.CONTENT_TYPE, JSON_CONTENT_TYPE)
-                .putHeader(HttpHeaders.Names.CONTENT_LENGTH, Integer.toString(encodedObject.getBytes().length))
-                .write(encodedObject)
-                .end();
+        writeObject(message, request, query);
     }
 
     private void deleteMetric(final Message<JsonObject> message) {
@@ -288,11 +291,7 @@ public class KairosPersistor extends BusModBase implements Handler<Message<JsonO
             sendError(message, "data points object was incorrectly formatted");
             return;
         }
-        String encodedObject = dataPoints.encode();
-        request.putHeader(HttpHeaders.Names.CONTENT_TYPE, JSON_CONTENT_TYPE)
-                .putHeader(HttpHeaders.Names.CONTENT_LENGTH, Integer.toString(encodedObject.getBytes().length))
-                .write(encodedObject)
-                .end();
+        writeObject(message, request, dataPoints);
     }
 
 
