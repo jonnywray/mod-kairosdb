@@ -16,9 +16,9 @@
  *  @author <a href="http://www.jonnywray.com">Jonny Wray</a>
  */
 
-package com.jonnywray.vertx.unit;
+package com.jonnywray.vertx.kairosdb.unit;
 
-import com.jonnywray.vertx.JsonValidator;
+import com.jonnywray.vertx.kairosdb.JsonValidator;
 import org.junit.Test;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;

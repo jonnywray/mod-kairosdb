@@ -16,7 +16,7 @@
  *  @author <a href="http://www.jonnywray.com">Jonny Wray</a>
  */
 
-package com.jonnywray.vertx;
+package com.jonnywray.vertx.kairosdb;
 
 import org.vertx.java.core.json.JsonObject;
 

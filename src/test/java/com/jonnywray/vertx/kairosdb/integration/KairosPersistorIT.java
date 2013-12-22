@@ -16,7 +16,7 @@
  *  @author <a href="http://www.jonnywray.com">Jonny Wray</a>
  */
 
-package com.jonnywray.vertx.integration.java;
+package com.jonnywray.vertx.kairosdb.integration;
 
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -32,7 +32,7 @@ import org.vertx.testtools.TestVerticle;
 import static org.vertx.testtools.VertxAssert.*;
 
 /**
- * Integration tests for the {@link com.jonnywray.vertx.KairosPersistor} against an externally running KairosDB with the
+ * Integration tests for the {@link com.jonnywray.vertx.kairosdb.KairosPersistor} against an externally running KairosDB with the
  * default configuration
  *
  * @author Jonny Wray

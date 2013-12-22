@@ -1,5 +1,5 @@
 {
-  "main":"com.jonnywray.vertx.KairosPersistor",
+  "main":"com.jonnywray.vertx.kairosdb.KairosPersistor",
 
   "description":"KairosDB persistor module for Vert.x",
   "licenses": ["The Apache Software License Version 2.0"],

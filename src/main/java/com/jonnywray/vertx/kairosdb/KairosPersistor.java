@@ -16,7 +16,7 @@
  *  @author <a href="http://www.jonnywray.com">Jonny Wray</a>
  */
 
-package com.jonnywray.vertx;
+package com.jonnywray.vertx.kairosdb;
 
 import io.netty.handler.codec.http.HttpHeaders;
 import org.vertx.java.busmods.BusModBase;
@@ -66,13 +66,20 @@ public class KairosPersistor extends BusModBase implements Handler<Message<JsonO
         address = getOptionalStringConfig("address", "jonnywray.kairospersistor");
         host = getOptionalStringConfig("host", "localhost");
         port = getOptionalIntConfig("port", 8080);
-
-        client = vertx.createHttpClient()
+        try{
+            client = vertx.createHttpClient()
                 .setPort(port)
                 .setHost(host)
                 .setKeepAlive(true)
                 .setSSL(false);
-        eb.registerHandler(address, this);
+            eb.registerHandler(address, this);
+
+            container.logger().info("successfully started KairosDB persistor module");
+        }
+        catch (Exception e){
+            container.logger().error("error starting KairosDB persistor module", e);
+            throw e;
+        }
     }
 
     @Override
