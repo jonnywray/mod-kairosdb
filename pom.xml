@@ -11,7 +11,7 @@
   <groupId>com.jonnywray.vertx</groupId>
   <artifactId>mod-kairosdb</artifactId>
   <packaging>jar</packaging>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0.0-SNAPSHOT</version>
   <name>Vertx Persistence Module for KairosDB</name>
   <url>https://github.com/jonnywray/mod-kairosdb</url>
   <description>
@@ -214,7 +214,20 @@
            <version>${maven.javadoc.plugin.version}</version>
            <configuration>
                <aggregate>true</aggregate>
-           </configuration>
+                <detectLinks />
+                    <links>
+                        <link>http://vertx.io/api/java</link>
+                </links>
+            </configuration>
+            <executions>
+                    <execution>
+                        <id>attach-javadoc</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+            </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
