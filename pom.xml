@@ -38,7 +38,7 @@
     </issueManagement>
     <scm>
         <url>https://github.com/jonnywray/mod-kairosdb</url>
-        <connection>scm:git:git@github.com:jonnywray/mod-kairosdb.git</connection>
+        <connection>scm:git:ssh://git@github.com/jonnywray/mod-kairosdb.git</connection>
         <developerConnection>scm:git:git@github.com:jonnywray/mod-kairosdb.git</developerConnection>
     </scm>
   <properties>
