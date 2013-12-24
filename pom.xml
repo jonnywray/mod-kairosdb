@@ -38,8 +38,8 @@
     </issueManagement>
     <scm>
         <url>https://github.com/jonnywray/mod-kairosdb</url>
-        <connection>scm:git:git@github.com:jonnywray/mod-kairosdb.git</connection>
-        <developerConnection>scm:git:git@github.com:jonnywray/mod-kairosdb.git</developerConnection>
+        <connection>scm:git:git://github.com/jonnywray/mod-kairosdb.git</connection>
+        <developerConnection>scm:git:https://jonnywray@github.com/jonnywray/mod-kairosdb.git</developerConnection>
     </scm>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
