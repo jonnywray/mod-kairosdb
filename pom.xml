@@ -10,7 +10,7 @@
   <groupId>com.jonnywray.vertx</groupId>
   <artifactId>mod-kairosdb</artifactId>
   <packaging>jar</packaging>
-  <version>1.0.0</version>
+  <version>1.0.1-SNAPSHOT</version>
   <name>Vertx Persistence Module for KairosDB</name>
   <url>https://github.com/jonnywray/mod-kairosdb</url>
   <description>
